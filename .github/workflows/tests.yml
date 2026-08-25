@@ -1,0 +1,30 @@
+name: tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: ruff check purplelens/ tests/
+
+      - name: Test
+        # SOC_PARALLAX_PATH intentionally unset here — that backend's
+        # integration tests skip gracefully without it (see tests/), same
+        # as anyone else cloning this repo without a private soc-parallax
+        # checkout on disk. Sigma-backend tests always run in full.
+        run: pytest tests/ -v

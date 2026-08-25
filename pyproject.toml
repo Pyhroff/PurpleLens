@@ -1,0 +1,15 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Explicit selection, not ruff's shifting defaults — an unpinned ruff floor
+# plus implicit default rules broke soc-parallax's CI on an unrelated
+# version bump (see Pyhroff/soc-parallax history). Pinning ruff's version
+# in requirements.txt AND selecting rules explicitly here means both halves
+# of that failure mode are closed off, not just one.
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v"

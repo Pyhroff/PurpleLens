@@ -51,6 +51,36 @@ def test_sigma_does_not_false_positive_across_unrelated_techniques():
                 f"{tid}'s event unexpectedly matched {other_tid}'s rule too")
 
 
+def test_sigma_contains_all_modifier_requires_every_value_present():
+    """Regression guard for SigmaAllModifier (the |contains|all combo) —
+    added specifically because the LSASS-dump rule uses it and the matcher
+    initially rejected it as an unsupported modifier (it isn't; it's a
+    value-linking concern already handled via item.value_linking, not a
+    per-value comparison one)."""
+    fields = dict(TECHNIQUES["T1003"].fields)
+    fields["CommandLine"] = "some_tool.exe lsass"  # 'lsass' present, '.dmp' is not
+    result = sigma_adapter.evaluate("T1003", fields)
+    assert result["available"] is True
+    assert result["detected"] is False, "must require ALL of ['lsass', '.dmp'], not just one"
+
+
+def test_sigma_nested_parens_and_all_of_wildcard_quantifier():
+    """Regression guard for the run-key rule's condition:
+    'selection_target and (selection_suspicious_paths_1 or (all of
+    selection_suspicious_paths_user_*)) and not 1 of filter_main_* and not
+    1 of filter_optional_*' — nested parens plus an 'all of pattern*'
+    quantifier, the most structurally complex condition PurpleLens's
+    parser handles among the vendored fixtures."""
+    result = sigma_adapter.evaluate("T1547", TECHNIQUES["T1547"].fields)
+    assert result["available"] is True
+    assert result["detected"] is True
+    # Same registry key, but Details points somewhere ordinary — should miss.
+    fields = dict(TECHNIQUES["T1547"].fields)
+    fields["Details"] = r"C:\Program Files\LegitApp\legitapp.exe"
+    result = sigma_adapter.evaluate("T1547", fields)
+    assert result["detected"] is False
+
+
 def test_sigma_condition_exclusion_filter_suppresses_legit_system_activity():
     """Regression guard for the 'not 1 of filter_*' exclusion path
     specifically — a SYSTEM-run scheduled task must not fire the rule that

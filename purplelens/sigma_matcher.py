@@ -24,6 +24,7 @@ import re
 
 from sigma.conditions import ConditionAND
 from sigma.modifiers import (
+    SigmaAllModifier,
     SigmaContainsModifier,
     SigmaEndswithModifier,
     SigmaStartswithModifier,
@@ -31,7 +32,12 @@ from sigma.modifiers import (
 from sigma.rule import SigmaDetection, SigmaDetectionItem
 from sigma.types import SigmaString, SpecialChars
 
+# Per-value comparison modifiers _value_matches() actually implements.
 _SUPPORTED_MODIFIERS = (SigmaContainsModifier, SigmaEndswithModifier, SigmaStartswithModifier)
+# Modifiers that affect how the value LIST combines (AND vs OR), not how a
+# single value compares — already fully handled by item.value_linking in
+# _match_item(), so they're not "unsupported," just not this function's job.
+_VALUE_LINKING_MODIFIERS = (SigmaAllModifier,)
 
 
 def _sigma_string_to_pattern(s: SigmaString) -> str:
@@ -53,7 +59,8 @@ def _value_matches(value, actual: str, modifiers: list) -> bool:
     """One SigmaString value against the actual field string, honoring
     whichever of the supported modifiers is present (case-insensitive,
     matching Sigma's own default matching semantics)."""
-    unsupported = [m for m in modifiers if m not in _SUPPORTED_MODIFIERS]
+    unsupported = [m for m in modifiers
+                  if m not in _SUPPORTED_MODIFIERS and m not in _VALUE_LINKING_MODIFIERS]
     if unsupported:
         names = [m.__name__ for m in unsupported]
         raise NotImplementedError(f"unsupported Sigma modifier(s): {names}")

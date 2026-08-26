@@ -88,13 +88,17 @@ silently evaluating a rule wrong.
 
 ## Vendored Sigma rules
 
-Only 3, deliberately — real, unmodified copies from SigmaHQ/sigma (DRL 1.1
-licensed, see `sigma_rules/LICENSE-sigma-rules.txt` and `SOURCE.md`), used
-as fixtures to prove the matching engine against actual production syntax,
-not hand-simplified examples. This is not a claim of full Sigma-corpus
-coverage (thousands of rules exist) — growing it means vendoring one more
-real rule + one more hand-crafted synthetic event, the same way these
-three were built.
+5, deliberately not more — real, unmodified copies from SigmaHQ/sigma (one
+disclosed exception: a missing quote that broke YAML parsing outright was
+fixed, see `SOURCE.md`), licensed DRL 1.1 (`sigma_rules/LICENSE-sigma-rules.txt`).
+Used as fixtures to prove the matching engine against actual production
+syntax, not hand-simplified examples — growing this set has already once
+meant finding and implementing a real Sigma modifier the matcher didn't
+support yet (`|contains|all`, i.e. `SigmaAllModifier`), not just dropping
+in a new YAML file. This is not a claim of full Sigma-corpus coverage
+(thousands of rules exist) — growing it further means the same thing:
+vendor one more real rule, hand-craft one more synthetic event, fix
+whatever the matcher doesn't handle yet.
 
 ## Tests
 
@@ -102,8 +106,8 @@ three were built.
 pytest tests/ -v
 ```
 
-22 tests. Sigma-backend tests run fully offline (vendored rules only) —
-a fresh clone with no `SOC_PARALLAX_PATH` set still passes cleanly, 13
+26 tests. Sigma-backend tests run fully offline (vendored rules only) —
+a fresh clone with no `SOC_PARALLAX_PATH` set still passes cleanly, 17
 tests running and 9 soc-parallax-integration tests skipping gracefully
 (not failing) with a clear reason. Set `SOC_PARALLAX_PATH` locally to also
 run the live integration checks against a real checkout.

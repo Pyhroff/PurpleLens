@@ -19,7 +19,7 @@ from .schemas import SyntheticEvent
 # Which techniques below have been checked against a real, vendored Sigma
 # rule in this pass (sigma_rules/*.yml). Not present here != "Sigma can't
 # detect it" — just "not tested against a real rule in this project yet."
-SIGMA_TESTED = {"T1059.001", "T1053", "T1202"}
+SIGMA_TESTED = {"T1059.001", "T1053", "T1202", "T1003", "T1547"}
 
 # Which techniques below have a corresponding rule in soc-parallax's
 # app/detect/signals/rules.py (verified live in that repo's own test suite,
@@ -71,8 +71,9 @@ TECHNIQUES: dict[str, SyntheticEvent] = {
          "CommandLine": "procdump.exe -ma lsass.exe lsass.dmp", "host": "WKS01"}),
 
     "T1547": SyntheticEvent(
-        "T1547", "Autostart (Run key) registry modification",
+        "T1547", "Autostart (Run key) registry modification pointing to AppData\\Roaming",
         {"event_type": "registry_set", "TargetObject": _RUN_KEY,
+         "Details": r"C:\Users\jdoe\AppData\Roaming\Updater\updater.exe",
          "EventData": {"TargetObject": _RUN_KEY}, "host": "WKS01"}),
 
     "T1053": SyntheticEvent(

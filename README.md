@@ -120,3 +120,14 @@ its own `mitre.yaml`'s claimed rule→technique mapping actually holds. This
 project generalizes that same synthetic-event methodology into a
 standalone, multi-backend tool with a real Sigma corpus and a visual
 ATT&CK Navigator output, rather than staying locked to one system.
+
+## Limitations
+
+- Coverage is measured with hand-crafted synthetic events, one or a few per technique; a rule that fires on them may still miss real-world variants, and a miss may be a matcher gap rather than a rule gap.
+- The built-in Sigma evaluator supports `contains`, `startswith`, `endswith`, wildcard equality and the condition grammar; rules using other modifiers (for example `|re`, `|base64`) raise a clear error instead of being evaluated.
+- Results describe the vendored rule set and the soc-parallax rulebook at the pinned versions, not a production SIEM.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
+
